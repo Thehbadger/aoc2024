@@ -26,22 +26,12 @@ getDirection x y
 parse :: String -> Int
 parse = sum . map (fromEnum . (`isSafe` Unk) . map (read :: String -> Level) . words) . lines
 
-isSafe :: Report -> Direction -> Bool
-isSafe [x, xs] d -- Last two of the list
-  | direction == Hold = False
-  | (value <= 3) && (direction == d) = True
-  | otherwise = False
-  where
-    (direction, value) = getDirection x xs
-isSafe (x : xs : xxs) Unk -- Starting offfffffff
-  | value <= 3 = isSafe (xs : xxs) direction
-  | otherwise = False
-  where
-    (direction, value) = getDirection x xs
-isSafe (x : xs : xxs) d -- Normal Pattern
-  | direction == Hold = False
-  | (value <= 3) && (d == direction) = isSafe (xs : xxs) direction
-  | otherwise = False
-  where
-    (direction, value) = getDirection x xs
-isSafe _ _ = False
+isSafe :: [(Direction, Int)] -> Bool
+isSafe =
+
+-- | Looks at the values and creates a list 
+createDirectionList :: Report -> [(Direction, Int)]
+createDirectionList [] = []
+createDirectionList [_] = []
+createDirectionList [x, xs] = [getDirection x xs]
+createDirectionList (x : xs : xxs) = getDirection x xs : createDirectionList (xs : xxs)
