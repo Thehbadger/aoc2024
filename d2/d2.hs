@@ -24,12 +24,26 @@ getDirection x y
   | otherwise = (Hold, 0)
 
 parse :: String -> Int
-parse = sum . map (fromEnum . (`isSafe` Unk) . map (read :: String -> Level) . words) . lines
+parse = sum . map (fromEnum . isSafe . createDirectionList) . convertLinesToReports . lines
+
+convertLinesToReports :: [String] -> [Report]
+convertLinesToReports = map (map (read :: String -> Level) . words)
 
 isSafe :: [(Direction, Int)] -> Bool
-isSafe =
+isSafe [] = True -- End of items end
+isSafe [(x, y)] -- Last Item
+  | (x /= Hold) && (y <= 3) = True
+  | otherwise = False
+isSafe ((Hold, _) : _) = False -- Found a Hold return
+isSafe ((Unk, y1) : x2) -- Start
+  | y1 <= 3 = isSafe x2
+  | otherwise = False
+isSafe ((x1, y1) : i2@(x2, _) : xs)
+  | (x1 == Hold) || (x2 == Hold) = False
+  | (x1 == x2) && (y1 <= 3) = isSafe (i2 : xs)
+  | otherwise = False
 
--- | Looks at the values and creates a list 
+-- | Looks at the values and creates a list
 createDirectionList :: Report -> [(Direction, Int)]
 createDirectionList [] = []
 createDirectionList [_] = []
